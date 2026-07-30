@@ -9,6 +9,7 @@ globant/
 *.sqlite3
 data/raw/*.csv
 data/backups/*.avro
+invalid_records.log
 
 # Entorno
 .env

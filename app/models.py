@@ -30,7 +30,7 @@ class HiredEmployee(Base):
     job = relationship("Job")
 
 
-# Esquemas Pydantic (Validaciones API)
+# Esquemas Pydantic uso exclusivo en la carga histórica, donde se estan informando los id's.
 
 class DepartmentCreate(BaseModel):
     id: int
@@ -42,6 +42,32 @@ class JobCreate(BaseModel):
 
 class EmployeeCreate(BaseModel):
     id: int
+    name: str
+    datetime: str
+    department_id: int
+    job_id: int
+
+    @field_validator('datetime')
+    def validate_iso_format(cls,v):
+        try:
+            # reemplazar la Z por +00:00 para parsear correctamente la fecha
+            datetime.fromisoformat(v.replace('Z', '+00:00'))
+            return v
+        except ValueError:
+            raise ValueError('El datetime debe estar en formato ISO')
+        
+# Esquemas para API, en un entorno real los id's son comunmente autogenerados, así que solo solicita los datos propios de cada objeto.
+
+class ApiDepartmentCreate(BaseModel):
+    # id: int
+    department: str
+
+class ApiJobCreate(BaseModel):
+    # id: int
+    job: str
+
+class ApiEmployeeCreate(BaseModel):
+    # id: int
     name: str
     datetime: str
     department_id: int
