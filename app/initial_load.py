@@ -3,12 +3,12 @@ import logging
 from sqlalchemy.orm import Session
 from pydantic import ValidationError
 from database import SessionLocal, engine, Base
-from models import Deparment, Job, HiredEmployee, DepartmentCreate, JobCreate, EmployeeCreate
+from models import Department, Job, HiredEmployee, DepartmentCreate, JobCreate, EmployeeCreate
 
-# Configuración de Loggin
+# Configuración de Logging
 logging.basicConfig(
     filename='../data/invalid_records.log',
-    level=logging.Error,
+    level=logging.ERROR,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
@@ -24,8 +24,8 @@ def load_data(session: Session, csv_path:str, model_orm, model_pydantic, table_n
     print(f"Iniciando carga histórica de {table_name}")
 
     try:
-        if table_name == 'deparments':
-            df = pd.read_csv(csv_path, names=['id', 'deparment'])
+        if table_name == 'departments':
+            df = pd.read_csv(csv_path, names=['id', 'department'])
         elif table_name == 'jobs':
             df = pd.read_csv(csv_path, names=['id', 'job'])
         else:
@@ -45,8 +45,8 @@ def load_data(session: Session, csv_path:str, model_orm, model_pydantic, table_n
 
                 # 2. Validación de reglas de negocio, 
                 if table_name == 'hired_employees':
-                    if validated_data.departmet_id not in valid_deps:
-                        raise ValidationError(f"department_id {validated_data.deparment_id} no existe en la tabla departments.")
+                    if validated_data.department_id not in valid_deps:
+                        raise ValidationError(f"department_id {validated_data.department_id} no existe en la tabla departments.")
                     if validated_data.job_id not in valid_jobs:
                         raise ValidationError(f"job_id {validated_data.job_id} no existe en la tabla jobs")
                 
@@ -73,21 +73,22 @@ def run_migration():
 
     try:
         # Carga de catálogos
-        load_data(session, '../data/departments.csv', Deparment, DepartmentCreate, 'departments')
+        load_data(session, '../data/departments.csv', Department, DepartmentCreate, 'departments')
+
         load_data(session, '../data/jobs.csv', Job, JobCreate, 'jobs')
 
         # Ya que se han cargado las tablas base, se obtienen los ID's para validar integridad con la tabla hired_employees
-        valid_deparments = get_valid_ids(session, Deparment)
+        valid_departments = get_valid_ids(session, Department)
         valid_jobs = get_valid_ids(session, Job)
 
         # Carga de tabla transaccional
         load_data(
             session,
-            '../data/hired_employees(1).csv',
+            '../data/hired_employees (1).csv',
             HiredEmployee,
             EmployeeCreate,
             'hired_employees',
-            valid_deps=valid_deparments,
+            valid_deps=valid_departments,
             valid_jobs=valid_jobs
         )
     finally:

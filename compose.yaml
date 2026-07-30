@@ -1,16 +1,18 @@
 services:
-  # api:
-  #   build: .
-  #   ports:
-  #     - '8000:8000'
-  #   volumes:
-  #     './app:/code/app'
-  #   env_file:
-  #     - .env
-  #   depends_on:
-  #     - mysql
-  #     - minio
-  #   restart: always
+  api:
+    build: .
+    ports:
+      - '8000:8000'
+    volumes:
+      - './app:/code/app'
+    env_file:
+      - .env
+    depends_on:
+      - mysql
+      - minio
+    restart: always
+    networks:
+      - private
 
   mysql:
     image: mysql:latest
@@ -58,3 +60,4 @@ volumes:
     driver: local
   mysql_data:
     driver: local
+
