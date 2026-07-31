@@ -2,7 +2,6 @@ import logging
 import traceback
 from fastapi import FastAPI, Depends, HTTPException, status, Path
 from fastapi.middleware.cors import CORSMiddleware
-#from fastapi.security import Htt
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from typing import List

@@ -54,7 +54,7 @@ El entorno esta completamente Dockerizado para garantizar y facilitar el desplie
     ```
 
 3. **Levantar Servicios:**
-    Este comando construirá la imagen de la aplicación, instalará las librerías necesarias en iniciará tanto la API como la BD.
+    Este comando construirá la imagen de la aplicación, instalará las librerías necesarias e iniciará tanto la API como la BD.
     ```bash
     docker compose up -d -o- docker compose up -d --build
     ```
