@@ -3,7 +3,7 @@ import io
 import pandas as pd
 import fastavro
 from fastapi import HTTPException
-from sqlalchemy import text
+from sqlalchemy import text, inspect
 from database import engine, minio_client
 from dotenv import load_dotenv
 from datetime import datetime, timezone
@@ -142,16 +142,24 @@ def restore_data(table_name: str):
 
         # Para la función de restaurar, truncamos la tabla actual y cargamos todo lo del respaldo.
         with engine.begin() as conn:
+            # FIX: Validar que la tabla existe antes de restaurar
+            inspector = inspect(conn)
+            table_exists = inspector.has_table(table_name)
             # Desactivar temporalmente la revisión de FK's, para evitar errores de restricción
             conn.execute(text("SET FOREIGN_KEY_CHECKS = 0;"))
-            conn.execute(text(f"TRUNCATE TABLE {table_name};"))
 
-            df.to_sql(name=table_name, con=conn, if_exists='append', index=False)
+            if table_exists:
+
+                conn.execute(text(f"TRUNCATE TABLE {table_name};"))
+                df.to_sql(name=table_name, con=conn, if_exists='append', index=False)
+            else:
+                df.to_sql(name=table_name, con=conn, if_exists='replace', index=False)
+                
             # Activo nuevamente la revisión de FK's
             conn.execute(text("SET FOREIGN_KEY_CHECKS = 1;"))
 
         return {
-            "message": f"Restauración correcta.",
+            "message": f"Restauración correcta." if table_exists else "Tabla recreada y restaurada correctamente.",
             "table" : table_name,
             "records_restored" : len(records)
         }

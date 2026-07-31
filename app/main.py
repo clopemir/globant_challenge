@@ -1,6 +1,8 @@
 import logging
 import traceback
 from fastapi import FastAPI, Depends, HTTPException, status, Path
+from fastapi.middleware.cors import CORSMiddleware
+#from fastapi.security import Htt
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from typing import List
@@ -168,8 +170,8 @@ def ingest_jobs_batch(
 
     for job in jobs:
 
-        if job.jobs == '':
-            logging.error(f"Registro {job.jobs} rechazado: el nombre es obligatorio.")
+        if job.job == '':
+            logging.error(f"Registro {job.job} rechazado: el nombre es obligatorio.")
             invalid_count += 1
             continue
 
